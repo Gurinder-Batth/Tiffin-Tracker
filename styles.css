@@ -157,11 +157,19 @@ html,body{
   display: grid; place-items: center; z-index: 50;
 }
 .modal{
-  width: 720px; max-width: calc(100% - 24px);
+  width: 640px; max-width: calc(100% - 24px);
   background: var(--surface);
   border: 1px solid var(--outline);
   border-radius: 14px; padding: 16px;
+  max-height: 90vh; overflow: auto;
 }
 .modal header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
 .modal .grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width: 640px){ .modal .grid{ grid-template-columns: 1fr; } }
+.modal .selected-dates{ margin-bottom: 8px; padding: 8px; border:1px solid var(--outline); border-radius:10px; background: rgba(255,255,255,0.03); white-space: normal; word-break: break-word; max-height: 160px; overflow-y: auto; }
+.modal .actions{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; }
+@media (max-width: 640px){
+  .modal{ width: 100%; max-width: calc(100% - 16px); padding: 12px; }
+  .modal header{ flex-direction: column; align-items: stretch; gap: 8px; }
+  .modal .grid{ grid-template-columns: 1fr; }
+  .modal .actions{ flex-direction: column; align-items: stretch; }
+}

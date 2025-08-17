@@ -619,12 +619,12 @@ function BulkPayModal({ onClose, onDone, dates = [] }){
           <h3>Bulk Pay</h3>
           <button className="button secondary" onClick={onClose}>Close</button>
         </header>
-        <div className="help">Selected dates: {dates.length ? dates.join(', ') : 'none'}</div>
+        <div className="selected-dates help">Selected dates: {dates.length ? dates.join(', ') : 'none'}</div>
         <div style={{ marginTop: 10 }}>
           <label>Screenshot</label>
           <input ref={fileRef} className="input" type="file" accept="image/*" />
         </div>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop: 12 }}>
+        <div className="actions">
           <div className="help">Unpaid orders across selected dates: <strong>{count}</strong></div>
           <button className="button success" disabled={busy} onClick={submit}>Mark all as Paid</button>
         </div>
