@@ -55,6 +55,38 @@ async function sha256Hex(str){
 }
 
 /*************************
+ * PWA Install helper
+ *************************/
+function usePwaInstall(){
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    (navigator.standalone === true)
+  );
+  useEffect(() => {
+    const onBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    const onInstalled = () => { setDeferredPrompt(null); setIsInstalled(true); };
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+  const promptInstall = useCallback(async () => {
+    if(!deferredPrompt) return false;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice.catch(()=>({ outcome:'dismissed' }));
+    setDeferredPrompt(null);
+    return choice && choice.outcome === 'accepted';
+  }, [deferredPrompt]);
+  return { canInstall: !!deferredPrompt && !isInstalled, promptInstall, isInstalled };
+}
+
+/*************************
  * Minimal IndexedDB helper
  *************************/
 const DB_NAME = 'tiffinDB';
@@ -232,6 +264,7 @@ function App(){
   const [session, setSessionState] = useState(getSession());
   const user = getUser();
   const [theme, setTheme] = useState(() => localStorage.getItem('ts_theme') || 'dark');
+  const pwa = usePwaInstall();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -246,7 +279,7 @@ function App(){
 
   if(!user){ return <Register onRegistered={handleLoggedIn} />; }
   if(!session){ return <Login onLoggedIn={handleLoggedIn} />; }
-  return <Main theme={theme} setTheme={setTheme} onLogout={() => { clearSession(); setSessionState(null); }} />;
+  return <Main theme={theme} setTheme={setTheme} onLogout={() => { clearSession(); setSessionState(null); }} pwaCanInstall={pwa.canInstall} onPwaInstall={pwa.promptInstall} />;
 }
 
 function Register({ onRegistered }){
@@ -333,7 +366,7 @@ function Login({ onLoggedIn }){
   );
 }
 
-function Main({ onLogout, theme, setTheme }){
+function Main({ onLogout, theme, setTheme, pwaCanInstall, onPwaInstall }){
   const [today] = useState(DateUtil.toYMD(new Date()));
   const [selectedDate, setSelectedDate] = useState(today);
   const d = DateUtil.parseYMD(selectedDate);
@@ -399,6 +432,9 @@ function Main({ onLogout, theme, setTheme }){
         </div>
         <div className="header-actions">
           <span className="kbd">{DateUtil.toYMD(new Date())}</span>
+          {pwaCanInstall && (
+            <button className="button success" onClick={onPwaInstall}>Install App</button>
+          )}
           <button className="button secondary" onClick={()=> setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? 'Light mode' : 'Dark mode'}
           </button>

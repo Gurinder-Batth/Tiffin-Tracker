@@ -65,6 +65,11 @@ html,body{
 .subtitle{ color: var(--muted); font-size: 13px; }
 
 .header-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.header-actions .button.success{ position: relative; }
+.header-actions .button.success::after{
+  content: '↘';
+  position: absolute; right: -10px; top: -10px; font-size: 12px; opacity: 0.7;
+}
 .button{
   appearance:none; border:none; cursor:pointer;
   color: var(--text);
